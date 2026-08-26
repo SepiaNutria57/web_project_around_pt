@@ -25,67 +25,116 @@ const initialCards = [
   },
 ];
 
-// Elementos do perfil
+
+/* =========================
+   ELEMENTOS DO PERFIL
+   ========================= */
+
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
-// Elementos do pop-up de edição
+
+/* =========================
+   POP-UP EDITAR PERFIL
+   ========================= */
+
 const editButton = document.querySelector(".profile__edit-button");
 const editPopup = document.querySelector("#edit-popup");
 const editCloseButton = editPopup.querySelector(".popup__close");
 
-// Elementos do formulário de edição
 const formElement = document.querySelector("#edit-profile-form");
-const nameInput = document.querySelector(".popup__input_type_name");
-const jobInput = document.querySelector(".popup__input_type_description");
 
-// Elementos do pop-up de novo cartão
+const nameInput = document.querySelector(
+  ".popup__input_type_name"
+);
+
+const jobInput = document.querySelector(
+  ".popup__input_type_description"
+);
+
+
+/* =========================
+   POP-UP NOVO LOCAL
+   ========================= */
+
 const addButton = document.querySelector(".profile__add-button");
-const newCardPopup = document.querySelector("#new-card-popup");
-const newCardCloseButton = newCardPopup.querySelector(".popup__close");
 
-// Elementos do formulário de novo cartão
+const newCardPopup = document.querySelector(
+  "#new-card-popup"
+);
+
+const newCardCloseButton =
+  newCardPopup.querySelector(".popup__close");
+
 const cardForm = document.querySelector("#new-card-form");
+
 const cardNameInput = document.querySelector(
   ".popup__input_type_card-name"
 );
-const cardLinkInput = document.querySelector(".popup__input_type_url");
 
-// Container dos cartões
-const cardsContainer = document.querySelector(".cards__list");
+const cardLinkInput = document.querySelector(
+  ".popup__input_type_url"
+);
 
-// Template dos cartões
-const cardTemplate = document.querySelector("#card-template");
 
-// Elementos do pop-up de imagem
-const imagePopup = document.querySelector("#image-popup");
-const imagePopupCloseButton = imagePopup.querySelector(".popup__close");
-const imagePopupImage = imagePopup.querySelector(".popup__image");
-const imagePopupCaption = imagePopup.querySelector(".popup__caption");
+/* =========================
+   CARTÕES
+   ========================= */
 
-// Abre um modal
+const cardsContainer = document.querySelector(
+  ".cards__list"
+);
+
+const cardTemplate = document.querySelector(
+  "#card-template"
+);
+
+
+/* =========================
+   POP-UP DA IMAGEM
+   ========================= */
+
+const imagePopup = document.querySelector(
+  "#image-popup"
+);
+
+const imagePopupCloseButton =
+  imagePopup.querySelector(".popup__close");
+
+const imagePopupImage =
+  imagePopup.querySelector(".popup__image");
+
+const imagePopupCaption =
+  imagePopup.querySelector(".popup__caption");
+
+
+/* =========================
+   FUNÇÕES DOS POP-UPS
+   ========================= */
+
 function openModal(modal) {
   modal.classList.add("popup_is-opened");
 }
 
-// Fecha um modal
 function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
 }
 
-// Preenche o formulário de perfil
+
+/* =========================
+   EDITAR PERFIL
+   ========================= */
+
 function fillProfileForm() {
   nameInput.value = profileTitle.textContent;
   jobInput.value = profileDescription.textContent;
 }
 
-// Abre o pop-up de edição de perfil
 function handleOpenEditModal() {
   fillProfileForm();
   openModal(editPopup);
 }
 
-// Manipula o envio do formulário de perfil
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
 
@@ -95,27 +144,48 @@ function handleProfileFormSubmit(evt) {
   closeModal(editPopup);
 }
 
-// Manipula o clique no botão de curtir
+
+/* =========================
+   CURTIR CARTÃO
+   ========================= */
+
 function handleLikeButtonClick(evt) {
-  evt.target.classList.toggle("card__like-button_is-active");
+  evt.target.classList.toggle(
+    "card__like-button_is-active"
+  );
 }
 
-// Manipula o clique no botão de excluir
+
+/* =========================
+   EXCLUIR CARTÃO
+   ========================= */
+
 function handleDeleteButtonClick(evt) {
   const card = evt.target.closest(".card");
+
   card.remove();
 }
 
-// Manipula o clique na imagem
+
+/* =========================
+   IMAGEM AMPLIADA
+   ========================= */
+
 function handleImageClick(name, link) {
   imagePopupCaption.textContent = name;
+
   imagePopupImage.src = link;
+
   imagePopupImage.alt = name;
 
   openModal(imagePopup);
 }
 
-// Cria um cartão a partir do template
+
+/* =========================
+   CRIAR CARTÃO
+   ========================= */
+
 function getCardElement(
   name = "Lugar sem nome",
   link = "./images/placeholder.jpg"
@@ -124,75 +194,136 @@ function getCardElement(
     .querySelector(".card")
     .cloneNode(true);
 
-  const cardTitle = cardElement.querySelector(".card__title");
-  const cardImage = cardElement.querySelector(".card__image");
-  const likeButton = cardElement.querySelector(".card__like-button");
-  const deleteButton = cardElement.querySelector(".card__delete-button");
+  const cardTitle =
+    cardElement.querySelector(".card__title");
+
+  const cardImage =
+    cardElement.querySelector(".card__image");
+
+  const likeButton =
+    cardElement.querySelector(".card__like-button");
+
+  const deleteButton =
+    cardElement.querySelector(".card__delete-button");
+
 
   cardTitle.textContent = name;
 
   cardImage.src = link;
+
   cardImage.alt = name;
 
-  likeButton.addEventListener("click", handleLikeButtonClick);
 
-  deleteButton.addEventListener("click", handleDeleteButtonClick);
+  likeButton.addEventListener(
+    "click",
+    handleLikeButtonClick
+  );
+
+
+  deleteButton.addEventListener(
+    "click",
+    handleDeleteButtonClick
+  );
+
 
   cardImage.addEventListener("click", () => {
     handleImageClick(name, link);
   });
 
+
   return cardElement;
 }
 
-// Adiciona um cartão ao início do container
+
 function renderCard(name, link, container) {
   const cardElement = getCardElement(name, link);
 
   container.prepend(cardElement);
 }
 
-// Abre o pop-up de edição
-editButton.addEventListener("click", handleOpenEditModal);
 
-// Fecha o pop-up de edição
-editCloseButton.addEventListener("click", () => {
-  closeModal(editPopup);
-});
+/* =========================
+   EVENTOS — EDITAR PERFIL
+   ========================= */
 
-// Envia o formulário de edição
-formElement.addEventListener("submit", handleProfileFormSubmit);
+editButton.addEventListener(
+  "click",
+  handleOpenEditModal
+);
 
-// Abre o pop-up de novo cartão
-addButton.addEventListener("click", () => {
-  openModal(newCardPopup);
-});
+editCloseButton.addEventListener(
+  "click",
+  () => {
+    closeModal(editPopup);
+  }
+);
 
-// Fecha o pop-up de novo cartão
-newCardCloseButton.addEventListener("click", () => {
-  closeModal(newCardPopup);
-});
+formElement.addEventListener(
+  "submit",
+  handleProfileFormSubmit
+);
 
-// Manipula o envio do formulário de novo cartão
+
+/* =========================
+   EVENTOS — NOVO LOCAL
+   ========================= */
+
+addButton.addEventListener(
+  "click",
+  () => {
+    openModal(newCardPopup);
+  }
+);
+
+newCardCloseButton.addEventListener(
+  "click",
+  () => {
+    closeModal(newCardPopup);
+  }
+);
+
+
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
 
-  renderCard(cardNameInput.value, cardLinkInput.value, cardsContainer);
+  renderCard(
+    cardNameInput.value,
+    cardLinkInput.value,
+    cardsContainer
+  );
 
   closeModal(newCardPopup);
 
   cardForm.reset();
 }
 
-// Envia o formulário de novo cartão
-cardForm.addEventListener("submit", handleCardFormSubmit);
 
-// Fecha o pop-up da imagem
-imagePopupCloseButton.addEventListener("click", () => {
-  closeModal(imagePopup);
-});
+cardForm.addEventListener(
+  "submit",
+  handleCardFormSubmit
+);
 
-// Renderiza os cartões iniciais
+
+/* =========================
+   EVENTOS — IMAGEM
+   ========================= */
+
+imagePopupCloseButton.addEventListener(
+  "click",
+  () => {
+    closeModal(imagePopup);
+  }
+);
+
+
+/* =========================
+   CARTÕES INICIAIS
+   ========================= */
+
 initialCards.forEach((card) => {
-  renderCard(card.name, card.link, cardsContainer);
+  renderCard(
+    card.name,
+    card.link,
+    cardsContainer
+  );
 });
