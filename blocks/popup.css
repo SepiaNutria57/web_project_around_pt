@@ -117,6 +117,30 @@
   margin: 0;
 }
 
+.popup__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.popup__error {
+  min-height: 30px;
+  color: #ff0000;
+  font-size: 12px;
+  line-height: 15px;
+}
+
+.popup__input:invalid {
+  border-bottom-color: #ff0000;
+}
+
+.popup__button:disabled {
+  background-color: #e5e5e5;
+  color: #b0b0b0;
+  border-color: #e5e5e5;
+  cursor: default;
+  opacity: 1;
+}
+
 @media screen and (max-width: 544px) {
   .popup {
     bottom: 112px;
