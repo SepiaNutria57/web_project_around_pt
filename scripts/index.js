@@ -1,3 +1,4 @@
+```javascript
 const initialCards = [
   {
     name: "Vale de Yosemite",
@@ -52,12 +53,26 @@ const jobInput = document.querySelector(
   ".popup__input_type_description"
 );
 
+const nameError = document.querySelector(
+  ".popup__input_type_name-error"
+);
+
+const jobError = document.querySelector(
+  ".popup__input_type_description-error"
+);
+
+const editSubmitButton = formElement.querySelector(
+  ".popup__button"
+);
+
 
 /* =========================
    POP-UP NOVO LOCAL
    ========================= */
 
-const addButton = document.querySelector(".profile__add-button");
+const addButton = document.querySelector(
+  ".profile__add-button"
+);
 
 const newCardPopup = document.querySelector(
   "#new-card-popup"
@@ -66,7 +81,9 @@ const newCardPopup = document.querySelector(
 const newCardCloseButton =
   newCardPopup.querySelector(".popup__close");
 
-const cardForm = document.querySelector("#new-card-form");
+const cardForm = document.querySelector(
+  "#new-card-form"
+);
 
 const cardNameInput = document.querySelector(
   ".popup__input_type_card-name"
@@ -74,6 +91,18 @@ const cardNameInput = document.querySelector(
 
 const cardLinkInput = document.querySelector(
   ".popup__input_type_url"
+);
+
+const cardNameError = document.querySelector(
+  ".popup__input_type_card-name-error"
+);
+
+const cardLinkError = document.querySelector(
+  ".popup__input_type_url-error"
+);
+
+const cardSubmitButton = cardForm.querySelector(
+  ".popup__button"
 );
 
 
@@ -109,7 +138,7 @@ const imagePopupCaption =
 
 
 /* =========================
-   FUNÇÕES DOS POP-UPS
+   POP-UPS
    ========================= */
 
 function openModal(modal) {
@@ -118,6 +147,96 @@ function openModal(modal) {
 
 function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
+}
+
+
+/* =========================
+   VALIDAÇÃO
+   ========================= */
+
+function showInputError(inputElement, errorElement) {
+  errorElement.textContent = inputElement.validationMessage;
+}
+
+function hideInputError(errorElement) {
+  errorElement.textContent = "";
+}
+
+function checkInputValidity(inputElement, errorElement) {
+  if (!inputElement.validity.valid) {
+    showInputError(inputElement, errorElement);
+  } else {
+    hideInputError(errorElement);
+  }
+}
+
+function hasInvalidInput(inputList) {
+  return inputList.some((inputElement) => {
+    return !inputElement.validity.valid;
+  });
+}
+
+function toggleButtonState(inputList, buttonElement) {
+  if (hasInvalidInput(inputList)) {
+    buttonElement.disabled = true;
+  } else {
+    buttonElement.disabled = false;
+  }
+}
+
+function setEventListeners(form) {
+  const inputList = Array.from(
+    form.querySelectorAll(".popup__input")
+  );
+
+  const buttonElement = form.querySelector(
+    ".popup__button"
+  );
+
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener("input", () => {
+      const errorElement = form.querySelector(
+        `.${inputElement.classList[1]}-error`
+      );
+
+      checkInputValidity(
+        inputElement,
+        errorElement
+      );
+
+      toggleButtonState(
+        inputList,
+        buttonElement
+      );
+    });
+  });
+}
+
+
+/* =========================
+   RESET DA VALIDAÇÃO
+   ========================= */
+
+function resetValidation(form) {
+  const inputList = Array.from(
+    form.querySelectorAll(".popup__input")
+  );
+
+  const buttonElement = form.querySelector(
+    ".popup__button"
+  );
+
+  inputList.forEach((inputElement) => {
+    inputElement.setCustomValidity("");
+
+    const errorElement = form.querySelector(
+      `.${inputElement.classList[1]}-error`
+    );
+
+    hideInputError(errorElement);
+  });
+
+  buttonElement.disabled = true;
 }
 
 
@@ -131,6 +250,7 @@ function fillProfileForm() {
 }
 
 function handleOpenEditModal() {
+  resetValidation(formElement);
   fillProfileForm();
   openModal(editPopup);
 }
@@ -186,10 +306,7 @@ function handleImageClick(name, link) {
    CRIAR CARTÃO
    ========================= */
 
-function getCardElement(
-  name = "Lugar sem nome",
-  link = "./images/placeholder.jpg"
-) {
+function getCardElement(name, link) {
   const cardElement = cardTemplate.content
     .querySelector(".card")
     .cloneNode(true);
@@ -243,6 +360,52 @@ function renderCard(name, link, container) {
 
 
 /* =========================
+   NOVO CARTÃO
+   ========================= */
+
+function handleCardFormSubmit(evt) {
+  evt.preventDefault();
+
+  renderCard(
+    cardNameInput.value,
+    cardLinkInput.value,
+    cardsContainer
+  );
+
+  closeModal(newCardPopup);
+
+  cardForm.reset();
+}
+
+
+/* =========================
+   FECHAR POP-UP PELA SOBREPOSIÇÃO
+   ========================= */
+
+function handleOverlayClick(evt) {
+  if (evt.target === evt.currentTarget) {
+    closeModal(evt.currentTarget);
+  }
+}
+
+
+/* =========================
+   FECHAR POP-UP COM ESC
+   ========================= */
+
+function handleEscapeKey(evt) {
+  if (evt.key === "Escape") {
+    const openedPopup =
+      document.querySelector(".popup_is-opened");
+
+    if (openedPopup) {
+      closeModal(openedPopup);
+    }
+  }
+}
+
+
+/* =========================
    EVENTOS — EDITAR PERFIL
    ========================= */
 
@@ -271,6 +434,7 @@ formElement.addEventListener(
 addButton.addEventListener(
   "click",
   () => {
+    resetValidation(cardForm);
     openModal(newCardPopup);
   }
 );
@@ -281,22 +445,6 @@ newCardCloseButton.addEventListener(
     closeModal(newCardPopup);
   }
 );
-
-
-function handleCardFormSubmit(evt) {
-  evt.preventDefault();
-
-  renderCard(
-    cardNameInput.value,
-    cardLinkInput.value,
-    cardsContainer
-  );
-
-  closeModal(newCardPopup);
-
-  cardForm.reset();
-}
-
 
 cardForm.addEventListener(
   "submit",
@@ -317,6 +465,44 @@ imagePopupCloseButton.addEventListener(
 
 
 /* =========================
+   EVENTOS — SOBREPOSIÇÃO
+   ========================= */
+
+editPopup.addEventListener(
+  "mousedown",
+  handleOverlayClick
+);
+
+newCardPopup.addEventListener(
+  "mousedown",
+  handleOverlayClick
+);
+
+imagePopup.addEventListener(
+  "mousedown",
+  handleOverlayClick
+);
+
+
+/* =========================
+   EVENTOS — ESC
+   ========================= */
+
+document.addEventListener(
+  "keydown",
+  handleEscapeKey
+);
+
+
+/* =========================
+   VALIDAÇÃO DOS FORMULÁRIOS
+   ========================= */
+
+setEventListeners(formElement);
+setEventListeners(cardForm);
+
+
+/* =========================
    CARTÕES INICIAIS
    ========================= */
 
@@ -327,3 +513,4 @@ initialCards.forEach((card) => {
     cardsContainer
   );
 });
+```
