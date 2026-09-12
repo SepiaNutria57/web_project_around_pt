@@ -52,13 +52,6 @@ const jobInput = document.querySelector(
   ".popup__input_type_description"
 );
 
-const nameError = document.querySelector(
-  ".popup__input_type_name-error"
-);
-
-const jobError = document.querySelector(
-  ".popup__input_type_description-error"
-);
 
 const editSubmitButton = formElement.querySelector(
   ".popup__button"
@@ -92,13 +85,6 @@ const cardLinkInput = document.querySelector(
   ".popup__input_type_url"
 );
 
-const cardNameError = document.querySelector(
-  ".popup__input_type_card-name-error"
-);
-
-const cardLinkError = document.querySelector(
-  ".popup__input_type_url-error"
-);
 
 const cardSubmitButton = cardForm.querySelector(
   ".popup__button"
@@ -194,9 +180,7 @@ function setEventListeners(form) {
 
   inputList.forEach((inputElement) => {
     inputElement.addEventListener("input", () => {
-      const errorElement = form.querySelector(
-        `.${inputElement.classList[1]}-error`
-      );
+      const errorElement = inputElement.nextElementSibling;
 
       checkInputValidity(
         inputElement,
@@ -228,9 +212,7 @@ function resetValidation(form) {
   inputList.forEach((inputElement) => {
     inputElement.setCustomValidity("");
 
-    const errorElement = form.querySelector(
-      `.${inputElement.classList[1]}-error`
-    );
+    const errorElement = inputElement.nextElementSibling;
 
     hideInputError(errorElement);
   });
