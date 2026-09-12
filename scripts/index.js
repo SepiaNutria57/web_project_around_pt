@@ -512,4 +512,3 @@ initialCards.forEach((card) => {
     cardsContainer
   );
 });
-```
