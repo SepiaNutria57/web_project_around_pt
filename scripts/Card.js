@@ -1,3 +1,5 @@
+import { openModal } from "./utils.js";
+
 export default class Card {
   constructor(data, templateSelector) {
     this._name = data.name;
@@ -40,11 +42,7 @@ export default class Card {
     this._imagePopupImage.alt = this._name;
     this._imagePopupCaption.textContent = this._name;
 
-    this._openModal(this._imagePopup);
-  }
-
-  _openModal(modal) {
-    modal.classList.add("popup_is-opened");
+    openModal(this._imagePopup);
   }
 
   getView() {
@@ -56,7 +54,8 @@ export default class Card {
     this._deleteButton = this._card.querySelector(".card__delete-button");
 
     this._imagePopup = document.querySelector("#image-popup");
-    this._imagePopupImage = this._imagePopup.querySelector(".popup__image");
+    this._imagePopupImage =
+      this._imagePopup.querySelector(".popup__image");
     this._imagePopupCaption =
       this._imagePopup.querySelector(".popup__caption");
 
