@@ -55,6 +55,8 @@ const editProfilePopup = new PopupWithForm(
       name: formData.name,
       job: formData.description,
     });
+
+    editProfilePopup.close();
   }
 );
 
@@ -71,6 +73,7 @@ const newCardPopup = new PopupWithForm(
     );
 
     cardsSection.addItem(card.getView());
+    newCardPopup.close();
   }
 );
 
