@@ -10,7 +10,7 @@ import UserInfo from "./UserInfo.js";
 const api = new Api({
   baseUrl: "https://around-api.pt-br.tripleten-services.com/v1",
   headers: {
-    authorization: "SEU_TOKEN_AQUI",
+    authorization: "53d26151-bb21-4420-b180-1a781168f2c4",
     "Content-Type": "application/json",
   },
 });
