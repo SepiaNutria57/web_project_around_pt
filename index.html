@@ -24,11 +24,18 @@
       <main class="content">
 
         <section class="profile page__section">
-          <img
-            class="profile__image"
-            src="./images/avatar.jpg"
-            alt="Avatar"
-          />
+          <div class="profile__image-container">
+            <img
+              class="profile__image"
+              src="./images/avatar.jpg"
+              alt="Avatar"
+            />
+            <button
+              aria-label="Alterar foto de perfil"
+              class="profile__avatar-edit"
+              type="button"
+            ></button>
+          </div>
 
           <div class="profile__info">
             <h1 class="profile__title">Jacques Cousteau</h1>
@@ -197,6 +204,72 @@
               disabled
             >
               Criar
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+
+
+
+      <!-- POP-UP CONFIRMAÇÃO DE EXCLUSÃO -->
+
+      <div class="popup" id="delete-confirmation-popup">
+        <div class="popup__content">
+
+          <button
+            aria-label="Fechar pop-up"
+            class="popup__close"
+            type="button"
+          ></button>
+
+          <h3 class="popup__title">Tem certeza?</h3>
+
+          <button
+            class="button popup__button"
+            type="button"
+          >
+            Sim
+          </button>
+
+        </div>
+      </div>
+
+
+      <!-- POP-UP ALTERAR FOTO -->
+
+      <div class="popup" id="avatar-popup">
+        <div class="popup__content">
+
+          <button
+            aria-label="Fechar pop-up"
+            class="popup__close"
+            type="button"
+          ></button>
+
+          <h3 class="popup__title">Alterar foto de perfil</h3>
+
+          <form class="popup__form" id="avatar-form">
+
+            <label class="popup__field">
+              <input
+                class="popup__input popup__input_type_avatar"
+                name="avatar"
+                placeholder="Link da imagem"
+                required
+                type="url"
+              />
+
+              <span class="popup__error popup__error_type_avatar"></span>
+            </label>
+
+            <button
+              class="button popup__button"
+              type="submit"
+              disabled
+            >
+              Salvar
             </button>
 
           </form>

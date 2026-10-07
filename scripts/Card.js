@@ -1,9 +1,22 @@
 export default class Card {
-  constructor(data, templateSelector, handleCardClick) {
+  constructor(
+    data,
+    templateSelector,
+    handleCardClick,
+    handleLikeClick,
+    handleDeleteClick,
+    userId
+  ) {
+    this._id = data._id;
     this._name = data.name;
     this._link = data.link;
+    this._isLiked = data.isLiked;
+    this._ownerId = data.owner;
     this._templateSelector = templateSelector;
     this._handleCardClick = handleCardClick;
+    this._handleLikeClick = handleLikeClick;
+    this._handleDeleteClick = handleDeleteClick;
+    this._userId = userId;
   }
 
   _getTemplate() {
@@ -19,9 +32,11 @@ export default class Card {
       this._handleLikeButtonClick();
     });
 
-    this._deleteButton.addEventListener("click", () => {
-      this._handleDeleteButtonClick();
-    });
+    if (this._deleteButton) {
+      this._deleteButton.addEventListener("click", () => {
+        this._handleDeleteButtonClick();
+      });
+    }
 
     this._cardImage.addEventListener("click", () => {
       this._handleCardClick({
@@ -32,10 +47,28 @@ export default class Card {
   }
 
   _handleLikeButtonClick() {
-    this._likeButton.classList.toggle("card__like-button_is-active");
+    this._handleLikeClick(this._id, this._isLiked)
+      .then((cardData) => {
+        this._setLikeState(cardData.isLiked);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   _handleDeleteButtonClick() {
+    this._handleDeleteClick(this);
+  }
+
+  _setLikeState(isLiked) {
+    this._isLiked = isLiked;
+    this._likeButton.classList.toggle(
+      "card__like-button_is-active",
+      this._isLiked
+    );
+  }
+
+  remove() {
     this._card.remove();
   }
 
@@ -50,6 +83,13 @@ export default class Card {
     this._cardImage.src = this._link;
     this._cardImage.alt = this._name;
     this._cardTitle.textContent = this._name;
+
+    this._setLikeState(this._isLiked);
+
+    if (this._ownerId !== this._userId && this._deleteButton) {
+      this._deleteButton.remove();
+      this._deleteButton = null;
+    }
 
     this._setEventListeners();
 

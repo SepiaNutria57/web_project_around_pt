@@ -1,36 +1,19 @@
+import Api from "./Api.js";
 import Card from "./Card.js";
 import FormValidator from "./FormValidator.js";
 import Section from "./Section.js";
 import PopupWithForm from "./PopupWithForm.js";
 import PopupWithImage from "./PopupWithImage.js";
+import PopupWithConfirmation from "./PopupWithConfirmation.js";
 import UserInfo from "./UserInfo.js";
 
-const initialCards = [
-  {
-    name: "Vale de Yosemite",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg",
+const api = new Api({
+  baseUrl: "https://around-api.pt-br.tripleten-services.com/v1",
+  headers: {
+    authorization: "SEU_TOKEN_AQUI",
+    "Content-Type": "application/json",
   },
-  {
-    name: "Lago Louise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg",
-  },
-  {
-    name: "Montanhas Carecas",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_bald-mountains.jpg",
-  },
-  {
-    name: "Latemar",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_latemar.jpg",
-  },
-  {
-    name: "Parque Nacional da Vanoise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_vanoise.jpg",
-  },
-  {
-    name: "Lago di Braies",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lago.jpg",
-  },
-];
+});
 
 const validationConfig = {
   formSelector: ".popup__form",
@@ -44,47 +27,97 @@ const validationConfig = {
 const userInfo = new UserInfo({
   userNameSelector: ".profile__title",
   userJobSelector: ".profile__description",
+  userAvatarSelector: ".profile__image",
 });
 
 const imagePopup = new PopupWithImage("#image-popup");
+const confirmationPopup = new PopupWithConfirmation(
+  "#delete-confirmation-popup"
+);
 
 const editProfilePopup = new PopupWithForm(
   "#edit-popup",
   (formData) => {
-    userInfo.setUserInfo({
-      name: formData.name,
-      job: formData.description,
-    });
+    const submitButton = document.querySelector(
+      "#edit-profile-form .popup__button"
+    );
+    submitButton.textContent = "Salvando...";
 
-    editProfilePopup.close();
+    return api
+      .setUserInfo({
+        name: formData.name,
+        about: formData.description,
+      })
+      .then((userData) => {
+        userInfo.setUserInfo({
+          name: userData.name,
+          job: userData.about,
+        });
+        editProfilePopup.close();
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        submitButton.textContent = "Salvar";
+      });
   }
 );
 
-const newCardPopup = new PopupWithForm(
-  "#new-card-popup",
+const avatarPopup = new PopupWithForm(
+  "#avatar-popup",
   (formData) => {
-    const card = new Card(
-      {
-        name: formData["place-name"],
-        link: formData.link,
-      },
-      "#card-template",
-      (cardData) => imagePopup.open(cardData)
+    const submitButton = document.querySelector(
+      "#avatar-form .popup__button"
     );
+    submitButton.textContent = "Salvando...";
 
-    cardsSection.addItem(card.getView());
-    newCardPopup.close();
+    return api
+      .setUserAvatar({
+        avatar: formData.avatar,
+      })
+      .then((userData) => {
+        userInfo.setUserInfo({
+          avatar: userData.avatar,
+        });
+        avatarPopup.close();
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        submitButton.textContent = "Salvar";
+      });
   }
 );
 
 const cardsSection = new Section(
   {
-    items: initialCards,
+    items: [],
     renderer: (cardData) => {
       const card = new Card(
         cardData,
         "#card-template",
-        (cardData) => imagePopup.open(cardData)
+        (data) => imagePopup.open(data),
+        (cardId, isLiked) => {
+          return isLiked
+            ? api.deleteLike(cardId)
+            : api.putLike(cardId);
+        },
+        (cardInstance) => {
+          confirmationPopup.open(() => {
+            api
+              .deleteCard(cardInstance._id)
+              .then(() => {
+                cardInstance.remove();
+                confirmationPopup.close();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          });
+        },
+        currentUserId
       );
 
       cardsSection.addItem(card.getView());
@@ -93,20 +126,68 @@ const cardsSection = new Section(
   ".cards__list"
 );
 
+const newCardPopup = new PopupWithForm(
+  "#new-card-popup",
+  (formData) => {
+    const submitButton = document.querySelector(
+      "#new-card-form .popup__button"
+    );
+    submitButton.textContent = "Salvando...";
+
+    return api
+      .addCard({
+        name: formData["place-name"],
+        link: formData.link,
+      })
+      .then((cardData) => {
+        cardsSection.addItem(
+          new Card(
+            cardData,
+            "#card-template",
+            (data) => imagePopup.open(data),
+            (cardId, isLiked) =>
+              isLiked ? api.deleteLike(cardId) : api.putLike(cardId),
+            (cardInstance) => {
+              confirmationPopup.open(() => {
+                api
+                  .deleteCard(cardInstance._id)
+                  .then(() => {
+                    cardInstance.remove();
+                    confirmationPopup.close();
+                  })
+                  .catch((err) => console.log(err));
+              });
+            },
+            currentUserId
+          ).getView()
+        );
+        newCardPopup.close();
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        submitButton.textContent = "Criar";
+      });
+  }
+);
+
 const editButton = document.querySelector(".profile__edit-button");
 const addButton = document.querySelector(".profile__add-button");
+const avatarButton = document.querySelector(".profile__avatar-edit");
 
 const editForm = document.querySelector("#edit-profile-form");
 const newCardForm = document.querySelector("#new-card-form");
+const avatarForm = document.querySelector("#avatar-form");
 
-const editFormValidator = new FormValidator(
-  validationConfig,
-  editForm
-);
-
+const editFormValidator = new FormValidator(validationConfig, editForm);
 const newCardFormValidator = new FormValidator(
   validationConfig,
   newCardForm
+);
+const avatarFormValidator = new FormValidator(
+  validationConfig,
+  avatarForm
 );
 
 editButton.addEventListener("click", () => {
@@ -122,15 +203,43 @@ editButton.addEventListener("click", () => {
 });
 
 addButton.addEventListener("click", () => {
+  newCardForm.reset();
   newCardFormValidator.resetValidation();
   newCardPopup.open();
 });
 
+avatarButton.addEventListener("click", () => {
+  avatarForm.reset();
+  avatarFormValidator.resetValidation();
+  avatarPopup.open();
+});
+
 imagePopup.setEventListeners();
+confirmationPopup.setEventListeners();
 editProfilePopup.setEventListeners();
 newCardPopup.setEventListeners();
+avatarPopup.setEventListeners();
 
 editFormValidator.setEventListeners();
 newCardFormValidator.setEventListeners();
+avatarFormValidator.setEventListeners();
 
-cardsSection.renderItems();
+let currentUserId = null;
+
+api
+  .getAppInfo()
+  .then(([userData, cards]) => {
+    currentUserId = userData._id;
+
+    userInfo.setUserInfo({
+      name: userData.name,
+      job: userData.about,
+      avatar: userData.avatar,
+    });
+
+    cardsSection._items = cards;
+    cardsSection.renderItems();
+  })
+  .catch((err) => {
+    console.log(err);
+  });
